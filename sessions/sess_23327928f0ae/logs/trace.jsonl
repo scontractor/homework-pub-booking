@@ -1,0 +1,6 @@
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-19T21:48:02.211205+00:00", "payload": {"text": "Hi, I'd like to book for 6 people on Friday 25th April at 7:30pm, deposit \u00a30", "turn": 0, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-19T21:48:11.541333+00:00", "payload": {"text": "Aye, we can do that. I'll pencil you in for 25th April at 7:30pm. What's the contact number?", "turn": 0, "mode": "text"}}
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-19T21:48:22.228663+00:00", "payload": {"text": "Actually can we bring it to 10 people?", "turn": 1, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-19T21:48:22.981201+00:00", "payload": {"text": "Too many. Declined, we cannae handle parties ower 8. Try The Royal Oak.", "turn": 1, "mode": "text"}}
+{"event_type": "voice.utterance_in", "actor": "user", "timestamp": "2026-05-19T21:48:38.929848+00:00", "payload": {"text": "OK, we'll keep it at 6 then. Can you confirm the booking?", "turn": 2, "mode": "text"}}
+{"event_type": "voice.utterance_out", "actor": "manager", "timestamp": "2026-05-19T21:48:39.816405+00:00", "payload": {"text": "Aye, confirmed for 6 people, 25th April, 7:30pm. What's the contact number?", "turn": 2, "mode": "text"}}
