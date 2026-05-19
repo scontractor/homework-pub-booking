@@ -131,20 +131,24 @@ async def run_scenario(real: bool) -> int:
         print(f"Session {session.session_id}")
         print(f"  dir: {session.directory}")
 
-        # Spawn mock Rasa unless --real
-        server = None
-        if not real:
-            server, _thread, mock_url = spawn_mock_rasa(port=5906)
-            rasa_half = RasaStructuredHalf(rasa_url=mock_url)
-        else:
-            rasa_half = RasaStructuredHalf()
+        # Always spawn mock Rasa — keeps Rasa out of the real-mode dependency chain.
+        # Real mode means real LLM for the loop half; Rasa behaviour is already
+        # validated by Ex6. The mock enforces the same party/deposit policy rules.
+        server, _thread, mock_url = spawn_mock_rasa(port=5906)
+        rasa_half = RasaStructuredHalf(rasa_url=mock_url)
 
-        client = _build_fake_client_two_rounds()
         tools = build_tool_registry(session)
-        loop_half = LoopHalf(
-            planner=DefaultPlanner(model="fake", client=client),
-            executor=DefaultExecutor(model="fake", client=client, tools=tools),  # type: ignore[arg-type]
-        )
+        if real:
+            loop_half = LoopHalf(
+                planner=DefaultPlanner(),
+                executor=DefaultExecutor(tools=tools),
+            )
+        else:
+            client = _build_fake_client_two_rounds()
+            loop_half = LoopHalf(
+                planner=DefaultPlanner(model="fake", client=client),
+                executor=DefaultExecutor(model="fake", client=client, tools=tools),  # type: ignore[arg-type]
+            )
         bridge = HandoffBridge(
             loop_half=loop_half,
             structured_half=rasa_half,
@@ -154,8 +158,7 @@ async def run_scenario(real: bool) -> int:
         try:
             result = await bridge.run(session, {"task": "book for party of 12 in Haymarket"})
         finally:
-            if server is not None:
-                server.shutdown()
+            server.shutdown()
 
         print(f"\nBridge outcome: {result.outcome}")
         print(f"  rounds: {result.rounds}")
