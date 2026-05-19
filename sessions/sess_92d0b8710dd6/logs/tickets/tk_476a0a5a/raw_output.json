@@ -1,0 +1,22 @@
+[
+  {
+    "id": "sg_1",
+    "description": "Search for a pub venue near Haymarket in Edinburgh for 12 people",
+    "success_criterion": "Returns a venue ID from the search results",
+    "estimated_tool_calls": 1,
+    "depends_on": [],
+    "assigned_half": "loop",
+    "status": "pending"
+  },
+  {
+    "id": "sg_2",
+    "description": "Confirm the booking details using handoff_to_structured with venue ID, date, time, and party size",
+    "success_criterion": "handoff_to_structured returns a successful confirmation response",
+    "estimated_tool_calls": 1,
+    "depends_on": [
+      "sg_1"
+    ],
+    "assigned_half": "structured",
+    "status": "pending"
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "sg_1",
+    "description": "Search for a venue in Old Town with party size 6 to obtain a valid venue_id",
+    "success_criterion": "Response contains a valid venue_id field",
+    "estimated_tool_calls": 1,
+    "depends_on": [],
+    "assigned_half": "loop",
+    "status": "pending"
+  },
+  {
+    "id": "sg_2",
+    "description": "Confirm booking using the new venue's details including venue_id, date, time, and party_size",
+    "success_criterion": "handoff_to_structured returns a successful confirmation response",
+    "estimated_tool_calls": 1,
+    "depends_on": [
+      "sg_1"
+    ],
+    "assigned_half": "structured",
+    "status": "pending"
+  }
+]

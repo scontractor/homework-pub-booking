@@ -1,0 +1,63 @@
+{
+  "session_id": "sess_92d0b8710dd6",
+  "version": 1,
+  "created_at": "2026-05-19T20:47:32.507369+00:00",
+  "updated_at": "2026-05-19T20:49:50.137094+00:00",
+  "scenario": "ex7-handoff-bridge",
+  "state": "completed",
+  "user_id": null,
+  "current_half": "loop",
+  "planner": {
+    "subgoals": [
+      {
+        "id": "sg_1",
+        "description": "Search for a venue in Old Town with party size 6 to obtain a valid venue_id",
+        "success_criterion": "Response contains a valid venue_id field",
+        "estimated_tool_calls": 1,
+        "depends_on": [],
+        "assigned_half": "loop",
+        "status": "pending"
+      },
+      {
+        "id": "sg_2",
+        "description": "Confirm booking using the new venue's details including venue_id, date, time, and party_size",
+        "success_criterion": "handoff_to_structured returns a successful confirmation response",
+        "estimated_tool_calls": 1,
+        "depends_on": [
+          "sg_1"
+        ],
+        "assigned_half": "structured",
+        "status": "pending"
+      }
+    ]
+  },
+  "executor": {},
+  "structured": {},
+  "memory": {},
+  "handoff_history": [],
+  "bare_mode": false,
+  "config_overrides": {},
+  "result": {
+    "committed": true,
+    "booking": {
+      "venue_id": "royal_oak",
+      "date": "2026-04-25",
+      "time": "19:30",
+      "party_size": 6,
+      "deposit_gbp": 0,
+      "duration_hours": 3,
+      "catering_tier": "bar_snacks"
+    },
+    "booking_reference": "BK-F3DA6A8C",
+    "rasa_response": [
+      {
+        "text": "Booking confirmed. Reference: BK-F3DA6A8C.",
+        "custom": {
+          "action": "committed",
+          "booking_reference": "BK-F3DA6A8C"
+        }
+      }
+    ]
+  },
+  "resumed_from": null
+}
