@@ -4,44 +4,56 @@
 
 ### Your answer
 
-In my ex7 run (session sess_52e9be8bc50b), the planner's plan JSON for
-both rounds assigned the single subgoal sg_1 to assigned_half: "loop" —
-not "structured". The actual decision to transition to the structured
-half was made by the executor at runtime, not by the planner's
-assignment. Trace line 5 shows the decisive event:
-event_type="executor.tool_called", tool="handoff_to_structured",
-reason="loop half identified a candidate venue; passing to structured
-half for confirmation under policy rules". Line 6 immediately follows:
-event_type="session.state_changed", from="loop", to="structured",
-round=1.
+In session `sess_92d0b8710dd6`, the planner (ticket `tk_476a0a5a`,
+model Qwen3-Next-80B-A3B-Thinking) decomposed the initial task into two
+subgoals: sg_1 `"Search for a pub venue near Haymarket in Edinburgh for
+12 people"` with `assigned_half: "loop"`, and sg_2 `"Confirm the
+booking details using handoff_to_structured with venue ID, date, time,
+and party size"` with `assigned_half: "structured"`. The planner's
+assignment of sg_2 to "structured" is an advisory intent label encoding
+where confirmation should happen — but it is not the mechanism that
+triggers the transition.
 
-The signal driving the call was the executor recognising that booking
-confirmation involves deterministic policy constraints (deposit cap,
-party-size cap) rather than open-ended research. That distinction maps
-directly onto which half should run: anything rule-following belongs to
-the structured half. The bridge honours the tool call regardless of the
-planner's assignment.
+The actual signal came from the executor inside ticket `tk_662e21e3`
+(executor.run_subgoal/sg_1). The LLM called `venue_search(near=
+"Haymarket", party_size=12)` twice (trace lines 4–5), returning 0
+results both times, then called `handoff_to_structured` at trace line 6
+— still inside the loop-assigned sg_1. The arguments contained only
+search-failure metadata (`"search_attempts": [{"budget": 1000,
+"results": 0}, ...]`), not a valid venue_id. The bridge detected the
+tool call and emitted `session.state_changed` from="loop",
+to="structured" at trace line 7.
 
-Round 2 begins at trace line 8 (bridge.round_start, round=2). By then
-the planner was re-invoked with the rejection reason embedded in the
-task: "The structured half rejected the previous proposal. Reason:
-party_too_large." The planner produced a fresh plan, the executor
-searched Old Town and found royal_oak (16 seats), and called
-handoff_to_structured a second time. Line 14 shows
-session.state_changed from="structured", to="complete".
+The structured half found no venue_id in the payload and returned a
+rejection (trace line 8, `rejection_reason: "normalisation failed:
+missing venue_id"`), triggering the bridge's reverse-handoff path.
 
-The key architectural lesson: the planner's assigned_half field is an
-advisory hint, not a physical gate. The bridge enforces transitions by
-detecting the handoff_to_structured tool call. This means a real LLM
-executor can hand off even when the plan said "loop" — useful for
-unexpected rule violations discovered mid-subgoal.
+Round 2 (trace line 9, bridge.round_start) shows the planner
+re-planning with the rejection in context (ticket `tk_539694c1`): sg_1
+became `"Search for a venue in Old Town with party size 6"`, again
+`assigned_half: "loop"`. The executor (ticket `tk_bc9ec108`) called
+`venue_search(near="Old Town", party_size=6)`, found 1 result (trace
+line 12), and the bridge forwarded the handoff (trace line 13). The
+structured half accepted and the session transitioned to complete at
+trace line 14 with booking reference `BK-F3DA6A8C`.
+
+The key architectural point: `assigned_half` is an advisory hint, not
+a gate. The executor called `handoff_to_structured` from within a
+loop-assigned subgoal (sg_1), and the bridge honoured it. The
+planner's assignment of sg_2 to "structured" never executed; the
+handoff happened earlier, driven by the executor detecting an
+unresolvable search failure.
 
 ### Citation
 
-- trace.jsonl line 5: executor.tool_called, tool=handoff_to_structured
-- trace.jsonl line 6: session.state_changed, from=loop, to=structured
-- ticket tk_70f785e7: planner.plan, state=success, round 1
-- ticket tk_37542fa5: executor.run_subgoal/sg_1, state=success, round 1
+- sessions/sess_92d0b8710dd6/logs/trace.jsonl line 6: executor.tool_called, tool=handoff_to_structured
+- sessions/sess_92d0b8710dd6/logs/trace.jsonl line 7: session.state_changed, from=loop, to=structured, round=1
+- sessions/sess_92d0b8710dd6/logs/trace.jsonl line 8: session.state_changed, from=structured, to=loop, rejection_reason="normalisation failed: missing venue_id"
+- sessions/sess_92d0b8710dd6/logs/trace.jsonl line 14: session.state_changed, from=structured, to=complete
+- ticket tk_476a0a5a: planner.plan round 1, sg_1 assigned_half="loop", sg_2 assigned_half="structured"
+- ticket tk_662e21e3: executor.run_subgoal/sg_1 round 1, handoff_requested=true
+- ticket tk_539694c1: planner.plan round 2, sg_1 assigned_half="loop"
+- ticket tk_bc9ec108: executor.run_subgoal/sg_1 round 2, handoff_requested=false
 
 ---
 
