@@ -6,6 +6,9 @@
 PY := python3
 UV := uv
 
+# Force UTF-8 stdout/stderr on Windows (avoids cp1252 UnicodeEncodeError).
+export PYTHONUTF8 := 1
+
 # Load .env into Make's own environment and export every variable to
 # child processes. This is how Rasa/sovereign-agent/subprocess.run all
 # end up seeing RASA_PRO_LICENSE, NEBIUS_KEY, etc. without extra Python

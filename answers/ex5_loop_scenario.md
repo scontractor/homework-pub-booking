@@ -23,4 +23,4 @@ like a reasonable number in the right context.
 ## Citations
 
 - sessions/sess_*/logs/trace.jsonl — tool call sequence
-- sessions/sess_*/workspace/flyer.md — the produced flyer
+- sessions/sess_*/workspace/flyer.html — the produced flyer

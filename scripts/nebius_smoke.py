@@ -6,9 +6,13 @@ This is step 2 of `make verify`. Cost: <£0.001.
 from __future__ import annotations
 
 import asyncio
+import io
 import os
 import sys
 from pathlib import Path
+
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf-16"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
