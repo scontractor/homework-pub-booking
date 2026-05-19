@@ -61,7 +61,9 @@ def normalise_booking_payload(raw: dict) -> dict:
         # LLM sometimes puts venue info under a results list rather than venue_id directly
         results = raw.get("results") or []
         if results and isinstance(results[0], dict):
-            venue_id_raw = results[0].get("id") or results[0].get("venue_id") or results[0].get("name")
+            venue_id_raw = (
+                results[0].get("id") or results[0].get("venue_id") or results[0].get("name")
+            )
     if not venue_id_raw:
         raise ValidationFailed("missing venue_id")
     venue_id = canonicalise_venue_id(str(venue_id_raw))

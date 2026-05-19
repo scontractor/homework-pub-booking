@@ -189,6 +189,7 @@ def build_forward_handoff(session: Session, loop_result: HalfResult) -> Handoff:
     if not data.get("venue_id"):
         try:
             from starter.edinburgh_research.integrity import _TOOL_CALL_LOG
+
             for record in reversed(_TOOL_CALL_LOG):
                 if record.tool_name == "venue_search":
                     results = record.output.get("results", [])

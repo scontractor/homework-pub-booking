@@ -248,9 +248,7 @@ class RasaHostLifecycle:
         log_dir: Path | None = None,
     ) -> None:
         # Default to the homework's rasa_project/ at the repo root
-        self.rasa_project_dir = rasa_project_dir or (
-            _SOLUTION_EX6.parent.parent / "rasa_project"
-        )
+        self.rasa_project_dir = rasa_project_dir or (_SOLUTION_EX6.parent.parent / "rasa_project")
         self.rasa_port = rasa_port
         self.action_port = action_port
         self.startup_timeout_s = startup_timeout_s

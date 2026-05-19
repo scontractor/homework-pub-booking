@@ -152,7 +152,9 @@ async def run_scenario(real: bool) -> int:
             )
             loop_half = LoopHalf(
                 planner=DefaultPlanner(model=cfg.llm_planner_model, client=llm_client),
-                executor=DefaultExecutor(model=cfg.llm_executor_model, client=llm_client, tools=tools),  # type: ignore[arg-type]
+                executor=DefaultExecutor(
+                    model=cfg.llm_executor_model, client=llm_client, tools=tools
+                ),  # type: ignore[arg-type]
             )
         else:
             client = _build_fake_client_two_rounds()
