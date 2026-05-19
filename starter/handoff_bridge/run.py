@@ -139,9 +139,20 @@ async def run_scenario(real: bool) -> int:
 
         tools = build_tool_registry(session)
         if real:
+            from sovereign_agent._internal.llm_client import OpenAICompatibleClient
+            from sovereign_agent.config import Config
+
+            cfg = Config.from_env()
+            print(f"  LLM: {cfg.llm_base_url} (live)")
+            print(f"  planner:  {cfg.llm_planner_model}")
+            print(f"  executor: {cfg.llm_executor_model}")
+            llm_client = OpenAICompatibleClient(
+                base_url=cfg.llm_base_url,
+                api_key_env=cfg.llm_api_key_env,
+            )
             loop_half = LoopHalf(
-                planner=DefaultPlanner(),
-                executor=DefaultExecutor(tools=tools),
+                planner=DefaultPlanner(model=cfg.llm_planner_model, client=llm_client),
+                executor=DefaultExecutor(model=cfg.llm_executor_model, client=llm_client, tools=tools),  # type: ignore[arg-type]
             )
         else:
             client = _build_fake_client_two_rounds()
