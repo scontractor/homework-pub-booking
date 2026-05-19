@@ -176,6 +176,13 @@ class HandoffBridge:
 # ---------------------------------------------------------------------------
 def build_forward_handoff(session: Session, loop_result: HalfResult) -> Handoff:
     """Package a loop result into a forward-handoff payload for structured."""
+    hp = loop_result.handoff_payload or {}
+    data = hp.get("data")
+    if not data:
+        # LLM may have put booking fields at top level rather than under "data"
+        top_level = {k: v for k, v in hp.items() if k not in ("reason", "context")}
+        data = top_level or loop_result.output or {}
+
     return Handoff(
         from_half="loop",
         to_half="structured",
@@ -183,7 +190,7 @@ def build_forward_handoff(session: Session, loop_result: HalfResult) -> Handoff:
         session_id=session.session_id,
         reason="loop-half requested confirmation",
         context=loop_result.summary,
-        data=(loop_result.handoff_payload or {}).get("data") or loop_result.output,
+        data=data,
         return_instructions=(
             "If you cannot confirm (party too large, deposit too high, etc.), "
             "respond with next_action=escalate and include a human-readable "
