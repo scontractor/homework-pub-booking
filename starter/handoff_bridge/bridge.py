@@ -197,8 +197,13 @@ def build_reverse_task(loop_result: HalfResult, struct_result: HalfResult) -> di
     reason = struct_result.output.get("reason") or struct_result.summary
     return {
         "task": (
-            "The structured half rejected the previous proposal. "
-            f"Reason: {reason}. Produce an alternative."
+            f"The previous booking proposal was rejected. Reason: {reason}. "
+            "Search for a DIFFERENT venue that satisfies the constraint: party_size <= 8. "
+            "Step 1: call venue_search(near='Old Town', party_size=6) to find a smaller venue. "
+            "Step 2: call handoff_to_structured with the new venue's details in the 'data' field, "
+            "including: action='confirm_booking', venue_id (the venue's id field), "
+            "date='2026-04-25', time='19:30', party_size='6', deposit='£0'. "
+            "Do NOT call complete_task."
         ),
         "context": {
             "prior_result": loop_result.output,

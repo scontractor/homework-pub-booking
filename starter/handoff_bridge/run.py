@@ -166,8 +166,18 @@ async def run_scenario(real: bool) -> int:
             max_rounds=3,
         )
 
+        initial_task = {
+            "task": (
+                "Book a pub venue in Edinburgh for a party of 12 people on 2026-04-25 at 19:30. "
+                "Step 1: call venue_search(near='Haymarket', party_size=12) to find a candidate venue. "
+                "Step 2: call handoff_to_structured with the booking details in the 'data' field, "
+                "including: action='confirm_booking', venue_id (use the venue's id field), "
+                "date='2026-04-25', time='19:30', party_size='12', deposit='£0'. "
+                "Do NOT call complete_task — always call handoff_to_structured to confirm the booking."
+            )
+        }
         try:
-            result = await bridge.run(session, {"task": "book for party of 12 in Haymarket"})
+            result = await bridge.run(session, initial_task)
         finally:
             server.shutdown()
 
