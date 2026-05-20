@@ -118,19 +118,17 @@ exception — losing every partial result — or be swallowed silently,
 making the session appear complete when it isn't.
 
 With the ticket state machine, all partial results up to the failure
-point are preserved. If venue_search and get_weather tickets reached
-state=success before the rate limit hit calculate_cost, those outputs
-are in the session directory. An operator can inspect the failed
-ticket, identify the exact call that failed, and retry from that
-point. The fail-closed design also prevents the bridge from calling
-the structured half with an incomplete upstream result — the bridge
-checks the session state before dispatching.
-
-The SessionQueue retry primitive would additionally catch transient
-429s and back off automatically. But the ticket state machine is the
-primitive that makes the failure observable and auditable — it converts
-an opaque crash into a structured, addressable artifact in the session
-directory.
+point are preserved in the session directory. If venue_search and
+get_weather tickets reached state=success before the rate limit hit
+calculate_cost, those outputs remain intact. An operator can inspect
+the failed ticket's manifest, identify the exact call that triggered
+the 429, and resume from that point. The fail-closed design also
+prevents the bridge from calling the structured half with an incomplete
+upstream result — the bridge checks the session state before
+dispatching. Without this primitive, a rate-limit error would either
+propagate as an unhandled exception — losing every partial result — or
+be swallowed silently, making the session appear complete when it
+isn't.
 
 ### Citation
 
